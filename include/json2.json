@@ -1,0 +1,29 @@
+{
+    "response-code": 200,
+    "message-id": "790062360",
+    "response-description": "Success",
+    "delivery-status": 32,
+    "delivery-description": "DeliveredToTerminal",
+    "delivery-tat": "00:00:08",
+    "delivery-networkid": 1,
+    "delivery-time": "2022-11-24 20:26:25"
+    
+}
+
+
+
+{
+    "response-code": 200,
+    "message-id": "790064932",
+    "response-description": "Success",
+    "delivery-status": 32,
+    "delivery-description": "SentToNetwork",
+    "delivery-tat": null,
+    "delivery-networkid": 1,
+    "delivery-time": null
+}
+
+{
+    "response-code": 1009,
+    "response-description": "No dlr"
+}
