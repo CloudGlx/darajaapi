@@ -48,7 +48,10 @@ if ($TransactionStatus == 'Completed') {
     $link = "http://wifi.login/login";
     $support = "0716815356";
     $support2 = "0715878800";
+    $renewlink="http://wifi.login/pass/";
     /***SEND SMS CODE */
+
+ 
 
 
     //SEND SMS FUNCTION
@@ -76,17 +79,23 @@ if ($TransactionStatus == 'Completed') {
         return $response;
     }
 
-    //SMS BODY FUNCTION
-    function MsgBody($Fname, $AccessCode, $UpTime, $link, $support)
+   /*SCHEDULE SMS FUNCTION  */
+  
+    //SMS BODY FUNCTION for code
+    function MsgBody($Fname, $AccessCode, $UpTime, $link, $support, $Device)
     {
         $MsgBody = "Hi " . $Fname . ",Connect to CloudGalaxy Wifi to get started" . "\n" .
             "Access Code:" . $AccessCode . "" . "\n" .
+            "Devices:" . $Device . "" . "\n" .
             "Uptime:" . $UpTime . "" . "\n" .
             "LoginLink: " . $link . "" . "\n" .
             "For help call " . $support . "";
 
         return $MsgBody;
     }
+
+
+    //RENEW SMS BODY
 
 
     //cut name
@@ -98,12 +107,12 @@ if ($TransactionStatus == 'Completed') {
     $AdmBody = "Hi Admin, You Dont have active Accesse codes for day " . $day . "";
     $AdmPhone = "254716815356";
 
-
+//6 HORS ONE DEVICE
     if ($amount == '25') {
 
         /********GET CODE FROM DATABASE AS PER DAY******/
 
-        $sql = "SELECT * FROM code WHERE day='$day' AND codeStatus=0 LIMIT 1";
+        $sql = "SELECT * FROM code WHERE day='$day' AND CodeStatus=0 AND Device=1 AND Period=6 LIMIT 1";
         $result = mysqli_query($conn, $sql);
         $num = mysqli_num_rows($result);
         if ($num == 0) {
@@ -114,10 +123,10 @@ if ($TransactionStatus == 'Completed') {
         $row = mysqli_fetch_row($result);
         $AccessCode = $row[1];
 
+        $Device=1;
+        $UpTime = "6Hrs";
 
-        $UpTime = "12Hrs";
-
-        $MsgBody = MsgBody($Fname, $AccessCode, $UpTime, $link, $support);
+        $MsgBody = MsgBody($Fname, $AccessCode, $UpTime, $link, $support, $Device);
         $data = sendsms($phone, $MsgBody);
         $res = json_decode($data, true);
 
@@ -130,9 +139,16 @@ if ($TransactionStatus == 'Completed') {
             //SMS WELL SEND
             //update code AS TAKEN
             $MsgStatus = 1; //0 for not sent
+            $start_time=$Time;
+            $end_time = date("Y-m-d H:i:s", strtotime('+6 hours'));
+            $sendtime=strtotime($end_time);//Unix timestamp.
             // $sql= "UPDATE code SET CodeStatus='1', AssignedTo=$phone, Amount=$amount WHERE Acode='$AccessCode'"; 
-            $sql = "UPDATE code SET CodeStatus='1', AssignedTO='$phone', Amount='$amount',Fname='$Fname',Time='$Time' WHERE Acode='$AccessCode'";
+            $sql = "UPDATE code SET StartTime='$start_time', EndTime='$end_time', CodeStatus='1', AssignedTO='$phone', Amount='$amount', Fname='$Fname',Time='$Time' WHERE Acode='$AccessCode'";
             $result = mysqli_query($conn, $sql);
+
+            //SCHEDULING SMS
+
+
             //SAVE SMS INFO TO SMS DATABASE
             //$sql = "INSERT INTO `sms`(`SmsId`, `SmsStatus`, `SmsBody`) VALUES ('".$MsgID."','".$MsgStatus."','".$MsgBody."');";
             //$result=mysqli_query($conn, $sql);  
@@ -143,24 +159,25 @@ if ($TransactionStatus == 'Completed') {
             $ErrorDec = $res['response-description'];
             //SEND EMAIL TO ADMIN WITH ERROR CODE
         }
-    } elseif ($amount == '35') {
+    } elseif ($amount == '45') {
 
         /********GET CODE FROM DATABASE AS PER DAY******/
 
-        $sql = "SELECT * FROM code WHERE day='$day' AND codeStatus=0 LIMIT 1";
+        $sql = "SELECT * FROM code WHERE day='$day' AND CodeStatus=0 AND Device=2 AND Period=6 LIMIT 1";
         $result = mysqli_query($conn, $sql);
         $num = mysqli_num_rows($result);
         if ($num == 0) {
+
             sendsms($AdmPhone, $AdmBody);
             exit;
         }
         $row = mysqli_fetch_row($result);
         $AccessCode = $row[1];
 
+        $Device=2;
+        $UpTime = "6Hrs";
 
-        $UpTime = "24Hrs";
-
-        $MsgBody = MsgBody($Fname, $AccessCode, $UpTime, $link, $support);
+        $MsgBody = MsgBody($Fname, $AccessCode, $UpTime, $link, $support, $Device);
         $data = sendsms($phone, $MsgBody);
         $res = json_decode($data, true);
 
@@ -173,9 +190,16 @@ if ($TransactionStatus == 'Completed') {
             //SMS WELL SEND
             //update code AS TAKEN
             $MsgStatus = 1; //0 for not sent
-            $sql = "UPDATE code SET CodeStatus='1', AssignedTO='$phone', Amount='$amount',Fname='$Fname',Time='$Time' WHERE Acode='$AccessCode'";
-
+            $start_time=$Time;
+            $end_time = date("Y-m-d H:i:s", strtotime('+6 hours'));
+            $sendtime=strtotime($end_time);//Unix timestamp.
+            // $sql= "UPDATE code SET CodeStatus='1', AssignedTo=$phone, Amount=$amount WHERE Acode='$AccessCode'"; 
+            $sql = "UPDATE code SET StartTime='$start_time', EndTime='$end_time', CodeStatus='1', AssignedTO='$phone', Amount='$amount', Fname='$Fname',Time='$Time' WHERE Acode='$AccessCode'";
             $result = mysqli_query($conn, $sql);
+
+            //SCHEDULING SMS
+
+
             //SAVE SMS INFO TO SMS DATABASE
             //$sql = "INSERT INTO `sms`(`SmsId`, `SmsStatus`, `SmsBody`) VALUES ('".$MsgID."','".$MsgStatus."','".$MsgBody."');";
             //$result=mysqli_query($conn, $sql);  
@@ -184,12 +208,16 @@ if ($TransactionStatus == 'Completed') {
             //ERROR OCURRED
             $ErrorCode = $res['response-code'];
             $ErrorDec = $res['response-description'];
+            //SEND EMAIL TO ADMIN WITH ERROR CODE
         }
-    } elseif ($amount == '150') {
+    
 
+    } elseif ($amount == '35') {
+
+     
         /********GET CODE FROM DATABASE AS PER DAY******/
 
-        $sql = "SELECT * FROM code WHERE day='$day' AND codeStatus=0 LIMIT 1";
+        $sql = "SELECT * FROM code WHERE day='$day' AND CodeStatus=0 AND Device=1 AND Period=12 LIMIT 1";
         $result = mysqli_query($conn, $sql);
         $num = mysqli_num_rows($result);
         if ($num == 0) {
@@ -197,56 +225,13 @@ if ($TransactionStatus == 'Completed') {
             sendsms($AdmPhone, $AdmBody);
             exit;
         }
-
         $row = mysqli_fetch_row($result);
         $AccessCode = $row[1];
 
-        $UpTime = "7days";
-
-
-        $MsgBody = MsgBody($Fname, $AccessCode, $UpTime, $link, $support);
-        $data = sendsms($phone, $MsgBody);
-        $res = json_decode($data, true);
-
-        $ReCode = $res['responses'][0]['response-code'];
-        $ReDec = $res['responses'][0]['response-description'];
-        $MsgID = $res['responses'][0]['messageid'];
-
-        //UPDATE CODE TO DATABASE
-        if ($ReCode == 200) {
-            //SMS WELL SEND
-            //update code AS TAKEN
-            $MsgStatus = 1; //0 for not sent
-            $sql = "UPDATE code SET CodeStatus='1', AssignedTO='$phone', Amount='$amount',Fname='$Fname',Time='$Time' WHERE Acode='$AccessCode'";
-            $result = mysqli_query($conn, $sql);
-            //SAVE SMS INFO TO SMS DATABASE
-            // $sql = "INSERT INTO `sms`(`SmsId`, `SmsStatus`, `SmsBody`) VALUES ('".$MsgID."','".$MsgStatus."','".$MsgBody."');";
-            // $result=mysqli_query($conn, $sql);  
-            exit;
-        } else {
-            //ERROR OCURRED
-            $ErrorCode = $res['response-code'];
-            $ErrorDec = $res['response-description'];
-        }
-    } elseif ($amount == '30') {
-
-        /********GET CODE FROM DATABASE AS PER DAY******/
-
-        $sql = "SELECT * FROM code WHERE day='$day' AND codeStatus=0 LIMIT 1";
-        $result = mysqli_query($conn, $sql);
-        $num = mysqli_num_rows($result);
-        if ($num == 0) {
-            sendsms($AdmPhone, $AdmBody);
-            //SORT OUT INCASE SMS ERROR FOR ADMIN
-            exit;
-        }
-        $row = mysqli_fetch_row($result);
-        $AccessCode = $row[1];
-
-
+        $Device=1;
         $UpTime = "12Hrs";
 
-        $MsgBody = MsgBody($Fname, $AccessCode, $UpTime, $link, $support);
+        $MsgBody = MsgBody($Fname, $AccessCode, $UpTime, $link, $support, $Device);
         $data = sendsms($phone, $MsgBody);
         $res = json_decode($data, true);
 
@@ -259,22 +244,34 @@ if ($TransactionStatus == 'Completed') {
             //SMS WELL SEND
             //update code AS TAKEN
             $MsgStatus = 1; //0 for not sent
-            $sql = "UPDATE code SET CodeStatus='1', AssignedTO='$phone', Amount='$amount',Fname='$Fname',Time='$Time' WHERE Acode='$AccessCode'";
+            $start_time=$Time;
+            $end_time = date("Y-m-d H:i:s", strtotime('+12 hours'));
+            $sendtime=strtotime($end_time);//Unix timestamp.
+            // $sql= "UPDATE code SET CodeStatus='1', AssignedTo=$phone, Amount=$amount WHERE Acode='$AccessCode'"; 
+            $sql = "UPDATE code SET StartTime='$start_time', EndTime='$end_time', CodeStatus='1', AssignedTO='$phone', Amount='$amount', Fname='$Fname',Time='$Time' WHERE Acode='$AccessCode'";
             $result = mysqli_query($conn, $sql);
+
+            //SCHEDULING SMS
+
+
             //SAVE SMS INFO TO SMS DATABASE
-            // $sql = "INSERT INTO `sms`(`SmsId`, `SmsStatus`, `SmsBody`) VALUES ('".$MsgID."','".$MsgStatus."','".$MsgBody."');";
-            // $result=mysqli_query($conn, $sql);  
+            //$sql = "INSERT INTO `sms`(`SmsId`, `SmsStatus`, `SmsBody`) VALUES ('".$MsgID."','".$MsgStatus."','".$MsgBody."');";
+            //$result=mysqli_query($conn, $sql);  
             exit;
         } else {
             //ERROR OCURRED
             $ErrorCode = $res['response-code'];
             $ErrorDec = $res['response-description'];
+            //SEND EMAIL TO ADMIN WITH ERROR CODE
         }
-    } elseif ($amount == '40') {
 
+
+    } elseif ($amount == '65') {
+
+      
         /********GET CODE FROM DATABASE AS PER DAY******/
 
-        $sql = "SELECT * FROM code WHERE day='$day' AND codeStatus=0 LIMIT 1";
+        $sql = "SELECT * FROM code WHERE day='$day' AND CodeStatus=0 AND Device=2 AND Period=12 LIMIT 1";
         $result = mysqli_query($conn, $sql);
         $num = mysqli_num_rows($result);
         if ($num == 0) {
@@ -285,10 +282,10 @@ if ($TransactionStatus == 'Completed') {
         $row = mysqli_fetch_row($result);
         $AccessCode = $row[1];
 
+        $Device=2;
+        $UpTime = "12Hrs";
 
-        $UpTime = "24Hrs";
-
-        $MsgBody = MsgBody($Fname, $AccessCode, $UpTime, $link, $support);
+        $MsgBody = MsgBody($Fname, $AccessCode, $UpTime, $link, $support, $Device);
         $data = sendsms($phone, $MsgBody);
         $res = json_decode($data, true);
 
@@ -301,24 +298,241 @@ if ($TransactionStatus == 'Completed') {
             //SMS WELL SEND
             //update code AS TAKEN
             $MsgStatus = 1; //0 for not sent
-            $sql = "UPDATE code SET CodeStatus='1', AssignedTO='$phone', Amount='$amount',Fname='$Fname',Time='$Time' WHERE Acode='$AccessCode'";
+            $start_time=$Time;
+            $end_time = date("Y-m-d H:i:s", strtotime('+12 hours'));
+            $sendtime=strtotime($end_time);//Unix timestamp.
+            // $sql= "UPDATE code SET CodeStatus='1', AssignedTo=$phone, Amount=$amount WHERE Acode='$AccessCode'"; 
+            $sql = "UPDATE code SET StartTime='$start_time', EndTime='$end_time', CodeStatus='1', AssignedTO='$phone', Amount='$amount', Fname='$Fname',Time='$Time' WHERE Acode='$AccessCode'";
             $result = mysqli_query($conn, $sql);
+
+            //SCHEDULING SMS
+
+
             //SAVE SMS INFO TO SMS DATABASE
-            // $sql = "INSERT INTO `sms`(`SmsId`, `SmsStatus`, `SmsBody`) VALUES ('".$MsgID."','".$MsgStatus."','".$MsgBody."');";
-            // $result=mysqli_query($conn, $sql);  
+            //$sql = "INSERT INTO `sms`(`SmsId`, `SmsStatus`, `SmsBody`) VALUES ('".$MsgID."','".$MsgStatus."','".$MsgBody."');";
+            //$result=mysqli_query($conn, $sql);  
             exit;
         } else {
-            //SMS ERROR OCURRED
+            //ERROR OCURRED
             $ErrorCode = $res['response-code'];
             $ErrorDec = $res['response-description'];
+            //SEND EMAIL TO ADMIN WITH ERROR CODE
         }
+
+
+    } elseif ($amount == '40') {
+
+        
+        /********GET CODE FROM DATABASE AS PER DAY******/
+
+        $sql = "SELECT * FROM code WHERE day='$day' AND CodeStatus=0 AND Device=1 AND Period=24 LIMIT 1";
+        $result = mysqli_query($conn, $sql);
+        $num = mysqli_num_rows($result);
+        if ($num == 0) {
+
+            sendsms($AdmPhone, $AdmBody);
+            exit;
+        }
+        $row = mysqli_fetch_row($result);
+        $AccessCode = $row[1];
+
+        $Device=1;
+        $UpTime = "24Hrs";
+
+        $MsgBody = MsgBody($Fname, $AccessCode, $UpTime, $link, $support, $Device);
+        $data = sendsms($phone, $MsgBody);
+        $res = json_decode($data, true);
+
+        $ReCode = $res['responses'][0]['response-code'];
+        $ReDec = $res['responses'][0]['response-description'];
+        $MsgID = $res['responses'][0]['messageid'];
+
+        //UPDATE CODE TO DATABASE
+        if ($ReCode == 200) {
+            //SMS WELL SEND
+            //update code AS TAKEN
+            $MsgStatus = 1; //0 for not sent
+            $start_time=$Time;
+            $end_time = date("Y-m-d H:i:s", strtotime('+24 hours'));
+            $sendtime=strtotime($end_time);//Unix timestamp.
+            // $sql= "UPDATE code SET CodeStatus='1', AssignedTo=$phone, Amount=$amount WHERE Acode='$AccessCode'"; 
+            $sql = "UPDATE code SET StartTime='$start_time', EndTime='$end_time', CodeStatus='1', AssignedTO='$phone', Amount='$amount', Fname='$Fname',Time='$Time' WHERE Acode='$AccessCode'";
+            $result = mysqli_query($conn, $sql);
+
+            //SCHEDULING SMS
+
+
+            //SAVE SMS INFO TO SMS DATABASE
+            //$sql = "INSERT INTO `sms`(`SmsId`, `SmsStatus`, `SmsBody`) VALUES ('".$MsgID."','".$MsgStatus."','".$MsgBody."');";
+            //$result=mysqli_query($conn, $sql);  
+            exit;
+        } else {
+            //ERROR OCURRED
+            $ErrorCode = $res['response-code'];
+            $ErrorDec = $res['response-description'];
+            //SEND EMAIL TO ADMIN WITH ERROR CODE
+        }
+        //24 2 DEVICES
+    } elseif ($amount == '75') {
+        /********GET CODE FROM DATABASE AS PER DAY******/
+
+        $sql = "SELECT * FROM code WHERE day='$day' AND CodeStatus=0 AND Device=2 AND Period=24 LIMIT 1";
+        $result = mysqli_query($conn, $sql);
+        $num = mysqli_num_rows($result);
+        if ($num == 0) {
+
+            sendsms($AdmPhone, $AdmBody);
+            exit;
+        }
+        $row = mysqli_fetch_row($result);
+        $AccessCode = $row[1];
+
+        $Device=2;
+        $UpTime = "24Hrs";
+
+        $MsgBody = MsgBody($Fname, $AccessCode, $UpTime, $link, $support, $Device);
+        $data = sendsms($phone, $MsgBody);
+        $res = json_decode($data, true);
+
+        $ReCode = $res['responses'][0]['response-code'];
+        $ReDec = $res['responses'][0]['response-description'];
+        $MsgID = $res['responses'][0]['messageid'];
+
+        //UPDATE CODE TO DATABASE
+        if ($ReCode == 200) {
+            //SMS WELL SEND
+            //update code AS TAKEN
+            $MsgStatus = 1; //0 for not sent
+            $start_time=$Time;
+            $end_time = date("Y-m-d H:i:s", strtotime('+24 hours'));
+            $sendtime=strtotime($end_time);//Unix timestamp.
+            // $sql= "UPDATE code SET CodeStatus='1', AssignedTo=$phone, Amount=$amount WHERE Acode='$AccessCode'"; 
+            $sql = "UPDATE code SET StartTime='$start_time', EndTime='$end_time', CodeStatus='1', AssignedTO='$phone', Amount='$amount', Fname='$Fname',Time='$Time' WHERE Acode='$AccessCode'";
+            $result = mysqli_query($conn, $sql);
+
+            //SCHEDULING SMS
+
+
+            //SAVE SMS INFO TO SMS DATABASE
+            //$sql = "INSERT INTO `sms`(`SmsId`, `SmsStatus`, `SmsBody`) VALUES ('".$MsgID."','".$MsgStatus."','".$MsgBody."');";
+            //$result=mysqli_query($conn, $sql);  
+            exit;
+        } else {
+            //ERROR OCURRED
+            $ErrorCode = $res['response-code'];
+            $ErrorDec = $res['response-description'];
+            //SEND EMAIL TO ADMIN WITH ERROR CODE
+        }
+
+
+    }elseif ($amount == '150') {
+     /********GET CODE FROM DATABASE AS PER DAY******/
+
+     $sql = "SELECT * FROM code WHERE day='$day' AND CodeStatus=0 AND Device=1 AND Period=168 LIMIT 1";
+     $result = mysqli_query($conn, $sql);
+     $num = mysqli_num_rows($result);
+     if ($num == 0) {
+
+         sendsms($AdmPhone, $AdmBody);
+         exit;
+     }
+     $row = mysqli_fetch_row($result);
+     $AccessCode = $row[1];
+
+     $Device=1;
+     $UpTime = "7days";
+
+     $MsgBody = MsgBody($Fname, $AccessCode, $UpTime, $link, $support, $Device);
+     $data = sendsms($phone, $MsgBody);
+     $res = json_decode($data, true);
+
+     $ReCode = $res['responses'][0]['response-code'];
+     $ReDec = $res['responses'][0]['response-description'];
+     $MsgID = $res['responses'][0]['messageid'];
+
+     //UPDATE CODE TO DATABASE
+     if ($ReCode == 200) {
+         //SMS WELL SEND
+         //update code AS TAKEN
+         $MsgStatus = 1; //0 for not sent
+         $start_time=$Time;
+         $end_time = date("Y-m-d H:i:s", strtotime('+168 hours'));
+         $sendtime=strtotime($end_time);//Unix timestamp.
+         // $sql= "UPDATE code SET CodeStatus='1', AssignedTo=$phone, Amount=$amount WHERE Acode='$AccessCode'"; 
+         $sql = "UPDATE code SET StartTime='$start_time', EndTime='$end_time', CodeStatus='1', AssignedTO='$phone', Amount='$amount', Fname='$Fname',Time='$Time' WHERE Acode='$AccessCode'";
+         $result = mysqli_query($conn, $sql);
+
+         //SCHEDULING SMS
+
+
+         //SAVE SMS INFO TO SMS DATABASE
+         //$sql = "INSERT INTO `sms`(`SmsId`, `SmsStatus`, `SmsBody`) VALUES ('".$MsgID."','".$MsgStatus."','".$MsgBody."');";
+         //$result=mysqli_query($conn, $sql);  
+         exit;
+     } else {
+         //ERROR OCURRED
+         $ErrorCode = $res['response-code'];
+         $ErrorDec = $res['response-description'];
+         //SEND EMAIL TO ADMIN WITH ERROR CODE
+     }
+
+    } elseif($amount == '290'){
+/********GET CODE FROM DATABASE AS PER DAY******/
+
+$sql = "SELECT * FROM code WHERE day='$day' AND CodeStatus=0 AND Device=2 AND Period=168 LIMIT 1";
+$result = mysqli_query($conn, $sql);
+$num = mysqli_num_rows($result);
+if ($num == 0) {
+
+    sendsms($AdmPhone, $AdmBody);
+    exit;
+}
+$row = mysqli_fetch_row($result);
+$AccessCode = $row[1];
+
+$Device=2;
+$UpTime = "7days";
+
+$MsgBody = MsgBody($Fname, $AccessCode, $UpTime, $link, $support, $Device);
+$data = sendsms($phone, $MsgBody);
+$res = json_decode($data, true);
+
+$ReCode = $res['responses'][0]['response-code'];
+$ReDec = $res['responses'][0]['response-description'];
+$MsgID = $res['responses'][0]['messageid'];
+
+//UPDATE CODE TO DATABASE
+if ($ReCode == 200) {
+    //SMS WELL SEND
+    //update code AS TAKEN
+    $MsgStatus = 1; //0 for not sent
+    $start_time=$Time;
+    $end_time = date("Y-m-d H:i:s", strtotime('+168 hours'));
+    $sendtime=strtotime($end_time);//Unix timestamp.
+    // $sql= "UPDATE code SET CodeStatus='1', AssignedTo=$phone, Amount=$amount WHERE Acode='$AccessCode'"; 
+    $sql = "UPDATE code SET StartTime='$start_time', EndTime='$end_time', CodeStatus='1', AssignedTO='$phone', Amount='$amount', Fname='$Fname',Time='$Time' WHERE Acode='$AccessCode'";
+    $result = mysqli_query($conn, $sql);
+
+    //SCHEDULING SMS
+
+
+    //SAVE SMS INFO TO SMS DATABASE
+    //$sql = "INSERT INTO `sms`(`SmsId`, `SmsStatus`, `SmsBody`) VALUES ('".$MsgID."','".$MsgStatus."','".$MsgBody."');";
+    //$result=mysqli_query($conn, $sql);  
+    exit;
+} else {
+    //ERROR OCURRED
+    $ErrorCode = $res['response-code'];
+    $ErrorDec = $res['response-description'];
+    //SEND EMAIL TO ADMIN WITH ERROR CODE
+}
     }
     //ANY OTHER AMOUNT CODE
     else {
         //ANY OTHER AMOUNT
-        $MsgBody = "Hi " . $Fname . ", It's Cloud Galaxy Tech, This is a confirmation message for your payment" . "\n" .
-            "Amount KSH :" . $amount . "" . "\n" .
-            "MpesaID: " . $MpesaCode . "" . "\n" .
+        $MsgBody = "Hi " . $Fname . ", It's Cloud Galaxy Tech, This is a confirmation message that we've received your payments" . "\n" .
+          //  "Amount KSH :" . $amount . "" . "\n" .
+          //  "MpesaID: " . $MpesaCode . "" . "\n" .
             "For Queries call/sms " . $support2 . "";
         $data = sendsms($phone, $MsgBody);
         $res = json_decode($data, true);
@@ -332,6 +546,7 @@ if ($TransactionStatus == 'Completed') {
     }
 } else {
     //IF TARNSACTION STATUS NOT WORKING
-
+    $AdmBody = "Hi Admin, You have a failed transaction status. " . $day . "";
+    sendsms($AdmPhone, $AdmBody);
     exit;
 }

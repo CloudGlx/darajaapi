@@ -8,8 +8,6 @@ require_once '../include/conn.php';
 
 ?>
 
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -73,9 +71,6 @@ if(!isset($_SESSION["CheckoutRequestID"]) && !isset($_SESSION["MerchantRequestID
                 </form>
 
             </div><!-- FORM BODY-->
-
-
-            
 
             <div class="form-footer">
                 <div>

@@ -11,7 +11,7 @@ require_once 'conn.php';
     $secret = "BkBKrXyXARl8PoQP";  //Put your secret here
     $initiatorName = "CLOUDT";
     $initiatorPassword = "cloudGALAXY?23";
-    $results_url = "https://checkout.cloudgalaxytech.com/include/tra.php"; //Endpoint to receive results Body
+    $results_url = "https://checkout.cloudgalaxytech.com/include/transation_results.php"; //Endpoint to receive results Body
     $timeout_url = "https://mydomain.com/TransactionStatus/queue/"; //Endpoint to to go to on timeout
 /*End  configurations*/
 
@@ -35,7 +35,7 @@ $transactionID = $row['MpesaCode'];
 /*End transaction code validation*/
 
     //$transactionID = $_GET["transactionID"]; 
-    $transactionID = "RBN0ATAABU";
+    $transactionID = "RBO8E7NXT2";
 
 
     $command = "TransactionStatusQuery";

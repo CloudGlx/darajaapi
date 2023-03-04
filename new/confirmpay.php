@@ -2,12 +2,14 @@
 
 session_start();
 
-require_once '../include/conn.php';
+require_once 'include/conn.php';
+
 //SAVE SESSEION TO VALIABLE
+
 $orderSession=$_SESSION['orderNo'];
 if(isset($_POST['confirm'])){
     //wait for 3 secods
-   // sleep(3);
+    sleep(3);
 
 //QJO9ILI6ZV
 
@@ -27,8 +29,6 @@ unset($_SESSION['orderNo']);
 //session_destroy();
 
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -201,8 +201,8 @@ session_unset();
 <?php
  session_destroy();
 }else{
-   
-    header('Location:index.php');
+
+    echo "<script>window.location.href='index.php';</script>";
 }
 
 ?>
